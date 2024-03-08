@@ -1,0 +1,17 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "Nodejs backend with express to communicate to angular front-end Postgres database",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "keywords": [
+    "PEAN",
+    "API",
+    "Express"
+  ],
+  "author": "Jaeden Hobstable",
+  "license": "ISC"
+}
