@@ -1,5 +1,5 @@
 # General Objective
-Createing a food tracker app for myself. Features will be a login for users where each user will have thier own track of food that can have custom macro information put in.
+Creating a food tracker app for myself. Features will be a login for users where each user will have thier own track of food that can have custom macro information put in.
 Other features I am also considering is a viual graph to show how many calories are eaten and what portion is from certain macros that resets every day.
 
 # FrontEnd
