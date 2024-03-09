@@ -1,7 +1,9 @@
-console.log("Testing testing 1..... 2...... 3..... We are good to go!!!!")
+const express = require('express')
+const app = express()
+const port = 8070
 
-function add(a, b) {
-    return a + b;
-}
+app.get('/', (req, res) => {
+    res.send("<h1>API works!</h1>")
+})
 
-console.log("Adding....", add(400, 400))
+app.listen(port, () => console.log(`Express Server listening on port ${port}`));
