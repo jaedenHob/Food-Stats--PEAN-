@@ -1,1 +1,59 @@
-<p>register works!</p>
+<form>
+    <p-card header="Register" [style]="{ width: '360px' }">
+
+        <div class="field">
+            <label for="First Name">First Name</label>
+            <input 
+                type="text" 
+                pInputText 
+                formControlName="firstName" 
+                class="w-full" 
+                name="firstName" 
+                placeholder="enter first name" />
+        </div>
+        
+        <div class="field">
+            <label for="password">Last Name</label>
+            <input 
+                type="text" 
+                pInputText 
+                formControlName="lastName" 
+                class="w-full" 
+                name="lastName"
+                placeholder="enter last name" />
+        </div>
+        
+        <div class="field">
+            <label for="email">Email</label>
+            <input 
+                type="text" 
+                pInputText formControlName="email" 
+                class="w-full" 
+                name="email"
+                placeholder="enter email" />
+        </div>
+
+        <div class="field">
+            <label for="password">Password</label>
+            <input 
+                type="password" 
+                pInputText 
+                formControlName="password" 
+                class="w-full" 
+                name="password"
+                placeholder="enter password" />
+        </div>
+
+        <div class="flex justify-content-center py-1">
+            <p-button label="Submit"></p-button>
+        </div>
+
+        <div class="flex justify-content-center mt-2 pt-1">
+            Are you already registered?
+            <div class="px-2 text-cyan-500 underline">
+                <a routerLink="/login" routerLinkActive="active">Click here</a>
+            </div>
+        </div>
+
+    </p-card>
+</form>
