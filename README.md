@@ -2,7 +2,7 @@
 Creating a food tracker app for myself. Features will be a login for users where each user will have thier own track of food that can have custom macro information put in.
 Other features I am also considering is a viual graph to show how many calories are eaten and what portion is from certain macros that resets every day.
 
-#documentation
+# Documentation
 https://docs.google.com/document/d/1PDq2j0AfiuhV5MYw3ygGVOVsKm6f3hHuMaNhBH-0tsU/edit?usp=sharing
 
 # FrontEnd
