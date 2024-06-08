@@ -1,0 +1,9 @@
+# template that can be used when creating a new .env for creating
+# a project with a connection to your own database.
+
+DB_USER=your_db_user
+DB_HOST=localhost
+DB_NAME=fitness_app
+DB_PASSWORD=your_db_password
+DB_PORT=5432
+JWT_SECRET=your_secret_key

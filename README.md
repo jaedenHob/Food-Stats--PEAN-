@@ -23,7 +23,7 @@ Run `ng build` to build the project. The build artifacts will be stored in the `
 
 # BackEnd
 
-To run the backend nodejs webserver `nodemon ./index.js [port#]`
+To run the backend nodejs webserver `nodemon ./server.js [port#]`
 
 ## Running unit tests
 
