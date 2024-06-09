@@ -10,5 +10,6 @@ router.get('/', (req, res) => {
 // routes
 router.post('/register', register);
 router.post('/login', login);
+router.delete('/delete/user/:id', deleteUser);
 
 module.exports = router;

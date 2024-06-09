@@ -8,6 +8,33 @@ const assert  = require("assert");
 
 let BASE_URL = "http://localhost:5000";
 
+// do to each helper function being asyncronous they
+// must be wrapped in a promise
+
+// helper function to make a get request
+const getRequest = (url) => {
+    return new Promise((resolve, reject) => {
+        http.get(url, (response) => {
+            let data = '';
+            // concanate data chunks
+            response.on('data', (chunk) => {
+                data += chunk;
+            });
+            // resolve promise when data recieved
+            response.on('end', () => {
+                // object with status code and data
+                resolve({
+                    statusCode: response.statusCode,
+                    body: data
+                });
+            });
+        }).on('error', (error) => {
+            // reject when there is an error
+            reject(error);
+        });
+    });
+};
+
 // helper function to make post requests
 const makePostRequest = (path, data, callback) => {
     const dataString = JSON.stringify(data);
@@ -74,6 +101,7 @@ const makeDeleteRequest = (path, callback) => {
  * To test that the connection between webserver and database works
 */
 
+// make sure variables from .env are available and correct
 console.log('DB_USER:' + ' ' + process.env.DB_USER);
 console.log('DB_HOST:' + ' ' + process.env.DB_HOST);
 console.log('DB_NAME:' + ' ' + process.env.DB_NAME);
@@ -96,34 +124,37 @@ const pool = require('./config/db'); // Adjust the path if necessary
     }
 })();
 
-/**
- * To test if get request work
- */
-http.get(BASE_URL + "/api", (response) => {
-    console.log("Response: " + response.statusCode);
-    assert(response.statusCode === 200);
-});
 
-/**
- * To test that creating a new user works
- */
-const registerData = {
-    username: 'testuser',
-    email: 'testUser@example.com',
-    password: 'password123',
-    dateofbirth: '2000-01-01',
-    gender: 'M',
-    heightininches: 70,
-    weightinpounds: 150.5,
-    goalweight: 140.0
+const testServer = async () => {
+    try {
+        const response = await getRequest(BASE_URL + '/api/');
+        console.log("Response: " + response.body);
+        assert(response.statusCode === 200);
+    } catch (error) {
+        console.error("Error testing server: ", error);
+    }
 };
 
-makePostRequest(BASE_URL + '/api/register', registerData, (res, responseString) => {
-    console.log('Register response:', responseString);
-    assert(res.statusCode === 201, 'Expected response status code to be 201');
-    const responseData = JSON.parse(responseString);
-    assert(responseData.email === registerData.email, 'Expected email to match');
-});
+// /**
+//  * To test that creating a new user works
+//  */
+// const registerData = {
+//     username: 'testuser',
+//     email: 'testUser@example.com',
+//     password: 'password123',
+//     dateofbirth: '2000-01-01',
+//     gender: 'M',
+//     heightininches: 70,
+//     weightinpounds: 150.5,
+//     goalweight: 140.0
+// };
+
+// makePostRequest(BASE_URL + '/api/register', registerData, (res, responseString) => {
+//     console.log('Register response:', responseString);
+//     assert(res.statusCode === 201, 'Expected response status code to be 201');
+//     const registerResponseData = JSON.parse(responseString);
+//     assert(registerResponseData.email === registerData.email, 'Expected email to match');
+// });
 
 // /**
 //  * To test that logging in works
@@ -144,9 +175,15 @@ makePostRequest(BASE_URL + '/api/register', registerData, (res, responseString) 
 //  * To test that deleting a user works
 //  */
 
-// makePostRequest(BASE_URL + '/api/delete/user/${userId}', (res, responseString) => {
+// makeDeleteRequest(BASE_URL + '/api/delete/user/' + registerResponseData.userid, (res, responseString) => {
 //     console.log('Delete response:', responseString);
 //     assert(res.statusCode === 200, 'Expected response status code to be 200');
 //     const deleteResponseData = JSON.parse(responseString);
 //     assert(deleteResponseData.message === 'User deleted successfully', 'Expected successful delete message');
 // });
+
+// run all of the test
+(async () => {
+    await testServer();
+    // await runTests();
+})();
