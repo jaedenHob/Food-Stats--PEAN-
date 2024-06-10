@@ -11,8 +11,11 @@ const register = async (req, res) => {
             return res.status(400).json({ message: 'Email already in use' });
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
+        // create salt and hash password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
         const newUser = await User.create({ username, email, password: hashedPassword, dateofbirth, gender, heightininches, weightinpounds, goalweight });
+
         res.status(201).json(newUser);
     } catch (error) {
         res.status(500).json({ message: req.body });
@@ -24,12 +27,12 @@ const login = async (req, res) => {
     try {
         const user = await User.findByEmail(email);
         if (!user) {
-            return res.status(400).json({ message: 'Invalid email or password' });
+            return res.status(400).json({ message: 'Invalid email or email not found' });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(400).json({ message: 'Invalid email or password' });
+            return res.status(400).json({ message: 'Password is incorrect'});
         }
 
         const token = jwt.sign({ userId: user.userid }, process.env.JWT_SECRET, { expiresIn: '1h' });

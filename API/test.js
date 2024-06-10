@@ -35,66 +35,76 @@ const getRequest = (url) => {
     });
 };
 
-// helper function to make post requests
-const makePostRequest = (path, data, callback) => {
-    const dataString = JSON.stringify(data);
-    const options = {
-        hostname: 'localhost',
-        port: 5000,
-        path: path,
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Content-Length': Buffer.byteLength(dataString)
-        }
-    };
+// Helper function to make POST requests
+const makePostRequest = (path, data) => {
+    return new Promise((resolve, reject) => {
+        const dataString = JSON.stringify(data);
+        const options = {
+            hostname: 'localhost',
+            port: 5000,
+            path: path,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(dataString)
+            }
+        };
 
-    const req = http.request(options, (res) => {
-        let responseString = '';
+        const req = http.request(options, (res) => {
+            let responseString = '';
 
-        res.on('data', (chunk) => {
-            responseString += chunk;
+            res.on('data', (chunk) => {
+                responseString += chunk;
+            });
+
+            res.on('end', () => {
+                resolve({
+                    statusCode: res.statusCode,
+                    body: responseString
+                });
+            });
         });
 
-        res.on('end', () => {
-            callback(res, responseString);
+        req.on('error', (e) => {
+            reject(e);
         });
-    });
 
-    req.on('error', (e) => {
-        console.error(`Problem with request: ${e.message}`);
+        req.write(dataString);
+        req.end();
     });
-
-    req.write(dataString);
-    req.end();
 };
 
-// Helper function to make delete requests
-const makeDeleteRequest = (path, callback) => {
-    const options = {
-        hostname: 'localhost',
-        port: 5000,
-        path: path,
-        method: 'DELETE',
-    };
+// Helper function to make DELETE requests
+const makeDeleteRequest = (path) => {
+    return new Promise((resolve, reject) => {
+        const options = {
+            hostname: 'localhost',
+            port: 5000,
+            path: path,
+            method: 'DELETE',
+        };
 
-    const req = http.request(options, (res) => {
-        let responseString = '';
+        const req = http.request(options, (res) => {
+            let responseString = '';
 
-        res.on('data', (chunk) => {
-            responseString += chunk;
+            res.on('data', (chunk) => {
+                responseString += chunk;
+            });
+
+            res.on('end', () => {
+                resolve({
+                    statusCode: res.statusCode,
+                    body: responseString
+                });
+            });
         });
 
-        res.on('end', () => {
-            callback(res, responseString);
+        req.on('error', (e) => {
+            reject(e);
         });
-    });
 
-    req.on('error', (e) => {
-        console.error(`Problem with request: ${e.message}`);
+        req.end();
     });
-
-    req.end();
 };
  
 /** 
@@ -102,12 +112,14 @@ const makeDeleteRequest = (path, callback) => {
 */
 
 // make sure variables from .env are available and correct
+console.log("Database .env variables")
 console.log('DB_USER:' + ' ' + process.env.DB_USER);
 console.log('DB_HOST:' + ' ' + process.env.DB_HOST);
 console.log('DB_NAME:' + ' ' + process.env.DB_NAME);
 console.log('DB_PASSWORD:' + ' ' + process.env.DB_PASSWORD);
 console.log('DB_PORT:' + ' ' + process.env.DB_PORT);
 console.log('JWT_SECRET:' + ' ' + process.env.JWT_SECRET);
+console.log("");
 
 const pool = require('./config/db'); // Adjust the path if necessary
 
@@ -128,62 +140,78 @@ const pool = require('./config/db'); // Adjust the path if necessary
 const testServer = async () => {
     try {
         const response = await getRequest(BASE_URL + '/api/');
-        console.log("Response: " + response.body);
+        console.log("");
+        console.log("Testing get request to server \nresponse: " + response.body);
+        console.log("");
         assert(response.statusCode === 200);
     } catch (error) {
         console.error("Error testing server: ", error);
     }
 };
 
-// /**
-//  * To test that creating a new user works
-//  */
-// const registerData = {
-//     username: 'testuser',
-//     email: 'testUser@example.com',
-//     password: 'password123',
-//     dateofbirth: '2000-01-01',
-//     gender: 'M',
-//     heightininches: 70,
-//     weightinpounds: 150.5,
-//     goalweight: 140.0
-// };
+// test user
+const registerData = {
+        username: 'testuser',
+        email: 'testUser@example.com',
+        password: 'password123',
+        dateofbirth: '2000-01-01',
+        gender: 'M',
+        heightininches: 70,
+        weightinpounds: 150.5,
+        goalweight: 140.0
+};
 
-// makePostRequest(BASE_URL + '/api/register', registerData, (res, responseString) => {
-//     console.log('Register response:', responseString);
-//     assert(res.statusCode === 201, 'Expected response status code to be 201');
-//     const registerResponseData = JSON.parse(responseString);
-//     assert(registerResponseData.email === registerData.email, 'Expected email to match');
-// });
+// Function to test creating a new user
+const testCreateUser = async () => {
 
-// /**
-//  * To test that logging in works
-//  */
-// const loginData = {
-//     email: registerData.email,
-//     password: registerData.password,
-// };
+    try {
+        const response = await makePostRequest(BASE_URL + '/api/register', registerData);
+        console.log('Register response:', response.body);
+        assert(response.statusCode === 201, 'Expected response status code to be 201');
+        const registerResponseData = JSON.parse(response.body);
+        assert(registerResponseData.email === registerData.email, 'Expected email to match');
+        return registerResponseData;
+    } catch (error) {
+        console.error("Error creating user: ", error);
+    }
+};
 
-// makePostRequest(BASE_URL + '/api/login', loginData, (res, responseString) => {
-//     console.log('Login response:', responseString);
-//     assert(res.statusCode === 200, 'Expected response status code to be 201');
-//     const loginResponseData = JSON.parse(responseString);
-//     assert(loginResponseData.token, 'Expected a JWT response');
-// });
+// Function to test logging in a user
+const testLoginUser = async (registerData) => {
+    const loginData = {
+        email: registerData.email,
+        password: registerData.password,
+    };
 
-// /**
-//  * To test that deleting a user works
-//  */
+    try {
+        const response = await makePostRequest(BASE_URL + '/api/login', loginData);
+        console.log('Login response:', response.body);
+        assert(response.statusCode === 200, 'Expected response status code to be 200');
+        const loginResponseData = JSON.parse(response.body);
+        assert(loginResponseData.token, 'Expected a JWT response');
+    } catch (error) {
+        console.error("Error logging in user: ", error);
+    }
+};
 
-// makeDeleteRequest(BASE_URL + '/api/delete/user/' + registerResponseData.userid, (res, responseString) => {
-//     console.log('Delete response:', responseString);
-//     assert(res.statusCode === 200, 'Expected response status code to be 200');
-//     const deleteResponseData = JSON.parse(responseString);
-//     assert(deleteResponseData.message === 'User deleted successfully', 'Expected successful delete message');
-// });
+// Function to test deleting a user
+const testDeleteUser = async (userId) => {
+    try {
+        const response = await makeDeleteRequest(BASE_URL + '/api/delete/user/' + userId);
+        console.log('Delete response:', response.body);
+        assert(response.statusCode === 200, 'Expected response status code to be 200');
+        const deleteResponseData = JSON.parse(response.body);
+        assert(deleteResponseData.message === 'User has been successfully deleted', 'Expected successful delete message');
+    } catch (error) {
+        console.error("Error deleting user: ", error);
+    }
+};
+
 
 // run all of the test
 (async () => {
     await testServer();
-    // await runTests();
+    const registerResponseData = await testCreateUser();
+    await testLoginUser(registerData);
+    await testDeleteUser(registerResponseData.userid);
 })();
