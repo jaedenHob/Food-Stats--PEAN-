@@ -33,7 +33,7 @@ CREATE TABLE foodEntries (
     id SERIAL PRIMARY KEY,
     userId INTEGER NOT NULL,
     foodName VARCHAR(255) NOT NULL,
-    totalServings FLOAT NOT NULL,
+    totalServingsInGrams FLOAT NOT NULL,
     totalProtein FLOAT NOT NULL,
     totalFats FLOAT NOT NULL,
     totalCarbs FLOAT NOT NULL,
