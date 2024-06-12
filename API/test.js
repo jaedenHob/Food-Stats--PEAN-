@@ -36,9 +36,19 @@ const getRequest = (url) => {
 };
 
 // Helper function to make POST requests
-const makePostRequest = (path, data) => {
+const makePostRequest = (path, data, token = null) => {
     return new Promise((resolve, reject) => {
         const dataString = JSON.stringify(data);
+
+        const headers = {
+            'Content-Type': 'application/json',
+            'Content-Length': Buffer.byteLength(dataString)
+        };
+
+        if (token) {
+            headers['Authorization'] = 'Bearer ${token}';
+        }
+        
         const options = {
             hostname: 'localhost',
             port: 5000,
