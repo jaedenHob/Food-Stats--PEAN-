@@ -75,13 +75,16 @@ const makePostRequest = (path, data) => {
 };
 
 // Helper function to make DELETE requests
-const makeDeleteRequest = (path) => {
+const makeDeleteRequest = (path, token) => {
     return new Promise((resolve, reject) => {
         const options = {
             hostname: 'localhost',
             port: 5000,
             path: path,
             method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`  // Add Authorization header with token
+            }
         };
 
         const req = http.request(options, (res) => {
@@ -170,7 +173,7 @@ const testCreateUser = async () => {
         assert(response.statusCode === 201, 'Expected response status code to be 201');
         const registerResponseData = JSON.parse(response.body);
         assert(registerResponseData.email === registerData.email, 'Expected email to match');
-        return registerResponseData;
+        // return registerResponseData;
     } catch (error) {
         console.error("Error creating user: ", error);
     }
@@ -189,15 +192,16 @@ const testLoginUser = async (registerData) => {
         assert(response.statusCode === 200, 'Expected response status code to be 200');
         const loginResponseData = JSON.parse(response.body);
         assert(loginResponseData.token, 'Expected a JWT response');
+        return loginResponseData.token;
     } catch (error) {
         console.error("Error logging in user: ", error);
     }
 };
 
 // Function to test deleting a user
-const testDeleteUser = async (userId) => {
+const testDeleteUser = async (token) => {
     try {
-        const response = await makeDeleteRequest(BASE_URL + '/api/delete/user/' + userId);
+        const response = await makeDeleteRequest(BASE_URL + '/api/delete/user/', token);
         console.log('Delete response:', response.body);
         assert(response.statusCode === 200, 'Expected response status code to be 200');
         const deleteResponseData = JSON.parse(response.body);
@@ -211,7 +215,7 @@ const testDeleteUser = async (userId) => {
 // run all of the test
 (async () => {
     await testServer();
-    const registerResponseData = await testCreateUser();
-    await testLoginUser(registerData);
-    await testDeleteUser(registerResponseData.userid);
+    await testCreateUser();
+    const token = await testLoginUser(registerData);
+    await testDeleteUser(token);
 })();

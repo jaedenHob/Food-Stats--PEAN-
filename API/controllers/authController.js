@@ -44,7 +44,7 @@ const login = async (req, res) => {
 
 const deleteUser = async (req, res) => {
     try {
-        const userId = req.params.id;
+        const userId = req.userId;
         const result = await User.delete(userId);
 
         if (result) {
@@ -54,7 +54,7 @@ const deleteUser = async (req, res) => {
             res.status(404).json({ message: 'User  does not exist' });
         }
     } catch (error) {
-        console.error('Error deleting user: ', error);
+        console.error('Error deleting user: ', userId);
         res.status(500).json({ message: 'Internal server error' });
     }
 };

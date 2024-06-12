@@ -1,6 +1,6 @@
 const express = require('express');
 const { register, login, deleteUser } = require('../controllers/authController');
-const { authMiddleware } = require('../middleware/authMiddleware');
+const authMiddleware = require('../middleware/authMiddleware');
 const router = express.Router();
 
 
@@ -11,6 +11,6 @@ router.get('/', (req, res) => {
 // routes
 router.post('/register', register);
 router.post('/login', login);
-router.delete('/delete/user/:id', deleteUser);
+router.delete('/delete/user/', authMiddleware, deleteUser);
 
 module.exports = router;

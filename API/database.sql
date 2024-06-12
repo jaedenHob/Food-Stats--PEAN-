@@ -11,7 +11,6 @@ CREATE TABLE users (
     goalweight DECIMAL(5, 2),
     goalcalories INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- create a table to have a list of foods
@@ -25,7 +24,7 @@ CREATE TABLE foodList (
     calories FLOAT NOT NULL,
     servingSizeGrams FLOAT NOT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (userId) REFERENCES users(userid)
+    FOREIGN KEY (userId) REFERENCES users(userid) ON DELETE CASCADE
 );
 
 -- create a table for daily food entries
@@ -40,6 +39,5 @@ CREATE TABLE foodEntries (
     totalCalories FLOAT NOT NULL,
     entryDate DATE NOT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (userId) REFERENCES users(userid)
+    FOREIGN KEY (userId) REFERENCES users(userid) ON DELETE CASCADE
 );
