@@ -1,5 +1,5 @@
 const express = require('express');
-const { register, login, deleteUser } = require('../controllers/authController');
+const { register, login, deleteUser, createFood } = require('../controllers/authController');
 const authMiddleware = require('../middleware/authMiddleware');
 const router = express.Router();
 
@@ -8,9 +8,17 @@ router.get('/', (req, res) => {
     res.send("<h1>API works!</h1>");
 });
 
-// routes
+
+/**
+ * Routes
+ */
+
+// Group of routes for foods and food entries creation and deletion
+router.post('/create/food', authMiddleware, createFood);
+
+// Group of routes for User creation and deletion
 router.post('/register', register);
 router.post('/login', login);
-router.delete('/delete/user/', authMiddleware, deleteUser);
+router.delete('/delete/user', authMiddleware, deleteUser);
 
 module.exports = router;

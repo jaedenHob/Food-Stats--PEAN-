@@ -46,18 +46,15 @@ const makePostRequest = (path, data, token = null) => {
         };
 
         if (token) {
-            headers['Authorization'] = 'Bearer ${token}';
+            headers['Authorization'] = `Bearer ${token}`;
         }
-        
+
         const options = {
             hostname: 'localhost',
             port: 5000,
             path: path,
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Content-Length': Buffer.byteLength(dataString)
-            }
+            headers: headers
         };
 
         const req = http.request(options, (res) => {
@@ -162,6 +159,13 @@ const testServer = async () => {
     }
 };
 
+/**
+ * Create a user and test expected API endpoints for creating a user,
+ * creating list of foods and food entries for a user,
+ * as well as deleting a user from a database along with the food lists
+ * and entries associated with a user
+ */
+
 // test user
 const registerData = {
         username: 'testuser',
@@ -208,10 +212,38 @@ const testLoginUser = async (registerData) => {
     }
 };
 
+
+/**
+ * Specific user to food lists and food entries API testing functions
+ */
+
+const testCreateFood = async (token) => {
+
+    // test food user is creating
+    const foodData = {
+            foodName: 'Chicken (cooked)',
+            proteins: 31.0,
+            fats: 3.6,
+            carbs: 0.0,
+            calories: 165.0,
+            servinSizeGrams: 100.0
+    };
+
+    try {
+        const response = await makePostRequest(BASE_URL + '/api/create/food', foodData, token);
+        console.log('Response from creating a food in database: ', response);
+        assert(response.statusCode === 201, 'Expected status code to be 201');
+        const createdFoodResponseData = JSON.parse(response.body);
+        assert(createdFoodResponseData.foodname === foodData.foodName, createdFoodResponseData);
+    } catch (error) {
+        console.error("Error creating list of foods: ", error);
+    }
+};
+
 // Function to test deleting a user
 const testDeleteUser = async (token) => {
     try {
-        const response = await makeDeleteRequest(BASE_URL + '/api/delete/user/', token);
+        const response = await makeDeleteRequest(BASE_URL + '/api/delete/user', token);
         console.log('Delete response:', response.body);
         assert(response.statusCode === 200, 'Expected response status code to be 200');
         const deleteResponseData = JSON.parse(response.body);
@@ -227,5 +259,6 @@ const testDeleteUser = async (token) => {
     await testServer();
     await testCreateUser();
     const token = await testLoginUser(registerData);
+    await testCreateFood(token);
     await testDeleteUser(token);
 })();

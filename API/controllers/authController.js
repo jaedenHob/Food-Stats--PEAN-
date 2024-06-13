@@ -2,6 +2,7 @@ const pool = require('../config/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Food = require('../models/FoodList');
 
 const register = async (req, res) => {
     const { username, email, password, dateofbirth, gender, heightininches, weightinpounds, goalweight } = req.body;
@@ -59,4 +60,34 @@ const deleteUser = async (req, res) => {
     }
 };
 
-module.exports = { register, login, deleteUser };
+const createFood = async (req, res) => {
+    try {
+        const userId = req.userId;
+
+        const { foodName, proteins, fats, carbs, calories, servinSizeGrams} = req.body;
+
+        const newFoodItem = {
+            userId,
+            foodName,
+            proteins,
+            fats,
+            carbs,
+            calories,
+            servinSizeGrams
+        };
+        
+        const result = await Food.create(newFoodItem);
+
+        if (result) {
+            res.status(201).json(result);
+        } else {
+            res.status(404).json({message: 'Error Error Error'});
+        }
+
+    } catch (error) {
+        console.error('Error creating food: ', userId);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+module.exports = { register, login, deleteUser, createFood };
