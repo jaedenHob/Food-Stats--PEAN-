@@ -116,6 +116,49 @@ const makeDeleteRequest = (path, token) => {
         req.end();
     });
 };
+
+const makeFoodDeleteRequest = (path, data, token) => {
+    return new Promise((resolve, reject) => {
+        const dataString = JSON.stringify(data);
+
+        const headers = {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+            'Content-Length': Buffer.byteLength(dataString)
+        };
+
+        const options = {
+            hostname: 'localhost',
+            port: 5000,
+            path: path,
+            method: 'DELETE',
+            headers: headers
+        };
+
+        const req = http.request(options, (res) => {
+            let responseString = '';
+
+            res.on('data', (chunk) => {
+                responseString += chunk;
+            });
+
+            res.on('end', () => {
+                resolve({
+                    statusCode: res.statusCode,
+                    body: responseString
+                });
+            });
+        });
+
+        req.on('error', (e) => {
+            reject(e);
+        });
+
+        req.write(dataString);  // Send body data
+        req.end();
+
+    });
+}
  
 /** 
  * To test that the connection between webserver and database works
@@ -132,6 +175,7 @@ console.log('JWT_SECRET:' + ' ' + process.env.JWT_SECRET);
 console.log("");
 
 const pool = require('./config/db'); // Adjust the path if necessary
+const { options } = require('./routes/authRoutes');
 
 (async () => {
     try {
@@ -235,8 +279,23 @@ const testCreateFood = async (token) => {
         assert(response.statusCode === 201, 'Expected status code to be 201');
         const createdFoodResponseData = JSON.parse(response.body);
         assert(createdFoodResponseData.foodname === foodData.foodName, createdFoodResponseData);
+        return createdFoodResponseData.id; // store id to test food specific deletion
     } catch (error) {
         console.error("Error creating list of foods: ", error);
+    }
+};
+
+const testDeleteFood = async (foodId, token) => {
+    const deleteData = { id: foodId };
+
+    try {
+        const response = await makeFoodDeleteRequest(BASE_URL + '/api/delete/food', deleteData, token);
+        console.log('Response from deleting food in database: ', response);
+        assert(response.statusCode === 200, 'Expected status code to be 200');
+        const deleteResponseData = JSON.parse(response.body);
+        assert(response.body === 'true', deleteResponseData);
+    } catch {
+        console.error("\nError deleteing food item: ", error);
     }
 };
 
@@ -259,6 +318,7 @@ const testDeleteUser = async (token) => {
     await testServer();
     await testCreateUser();
     const token = await testLoginUser(registerData);
-    await testCreateFood(token);
+    const foodId = await testCreateFood(token);
+    await testDeleteFood(foodId, token);
     await testDeleteUser(token);
 })();

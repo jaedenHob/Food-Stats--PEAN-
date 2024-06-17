@@ -90,4 +90,25 @@ const createFood = async (req, res) => {
     }
 };
 
-module.exports = { register, login, deleteUser, createFood };
+const deleteFood = async (req, res) => {
+    try {
+        const userId = req.userId;
+        const { id: foodId } = req.body;
+
+        console.log(foodId);
+
+        const result = await Food.delete(foodId);
+
+        if (result) {
+            res.status(200).json(result);
+        } else {
+            res.status(404).json({ message: 'food not found' });
+        }
+    
+    } catch (error) {
+        console.error('Error deleting food: ', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+module.exports = { register, login, deleteUser, createFood, deleteFood };

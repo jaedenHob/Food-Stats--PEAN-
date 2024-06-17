@@ -10,12 +10,12 @@ const foodItem = {
             [userId, foodName, proteins, fats, carbs, calories, servinSizeGrams]
         );
         return result.rows[0];
-    }
+    },
 
-    // delete: async (userId) => {
-    //     const result = await pool.query(' DELETE FROM users WHERE userid = $1 RETURNING *', [userId]);
-    //     return result.rowCount > 0; // true if a user gets deleted
-    // }
+    delete: async (foodId) => {
+        const result = await pool.query(' DELETE FROM foodlist WHERE id = $1 RETURNING *', [foodId]);
+        return result.rowCount > 0; // true if a food gets deleted
+    }
 };
 
 module.exports = foodItem;
